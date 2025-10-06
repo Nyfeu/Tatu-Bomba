@@ -1,0 +1,20 @@
+[Unit]
+Description=Servico de Telemetria (MQTT)
+# Garante que o servico so inicie DEPOIS de a rede estar online.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=nyfeu
+WorkingDirectory=/home/nyfeu/rpi_software
+
+# Executa o script que esta na subpasta 'robot_client',
+# usando o interpretador Python que esta DENTRO do 'venv' na raiz.
+ExecStart=/home/nyfeu/rpi_software/venv/bin/python3 /home/nyfeu/rpi_software/robot_client/robot_client.py
+
+# Reinicia o servico automaticamente se ele falhar.
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
