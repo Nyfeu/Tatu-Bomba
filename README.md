@@ -44,24 +44,22 @@ graph TD
     subgraph "Robot Platform"
     
 		    subgraph H["Raspberry Pi Zero 2W"]
+				C["Robot Client (MQTT)"]
+				D["Video Server (MJPEG)"]
+		    end
+
+			subgraph E["ESP32S NodeMcu"]
 		    
-					C["Robot Client (MQTT)"]
-	        D["Video Server (MJPEG)"]
+				F["UART Task"]
+	        	G["Sensor Motor Task"]
 	        
 		    end 
-		    
-		    G[Pi Camera]
-        E[ESP32 Controller]
-        F[Sensors & Motors]
         
-    
     end
 
     B -- "Wi-Fi (MQTT)" <--> C
     A -- "Wi-Fi (HTTPS)" <--> D
-    C -- "UART (Serial)" <--> E
-    E -- "PWM/ADC/PCNT" <--> F
-    G -- "CSI" <--- D
+    C -- "UART (Serial)" <--> F
 ```
 
 ## 📦 Componentes de Software
