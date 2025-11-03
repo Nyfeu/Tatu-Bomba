@@ -44,8 +44,8 @@ graph TD
     Task_Sensor -- "Envia Telemetria" --> Queue
     Queue -- "Recebe Telemetria" --> Task_UART
 
-    style Mutex fill:#f9f,stroke:#333,stroke-width:2px
-    style Queue fill:#ccf,stroke:#333,stroke-width:2px
+    style Mutex stroke:#333,stroke-width:2px
+    style Queue stroke:#333,stroke-width:2px
 ```
 ```mermaid
 graph TD
@@ -77,8 +77,8 @@ graph TD
         In_Mutex --> MotorLogic --> Out_LEDC & Out_GPIO
     end
     
-    style In_Mutex fill:#f9f,stroke:#333,stroke-width:2px
-    style Out_Queue fill:#ccf,stroke:#333,stroke-width:2px
+    style In_Mutex stroke:#333,stroke-width:2px
+    style Out_Queue stroke:#333,stroke-width:2px
 ```
 ```mermaid
 graph TD
@@ -104,8 +104,8 @@ graph TD
         In_Queue --> Format --> Out_UART
     end
     
-    style In_Queue fill:#ccf,stroke:#333,stroke-width:2px
-    style Out_Mutex fill:#f9f,stroke:#333,stroke-width:2px
+    style In_Queue stroke:#333,stroke-width:2px
+    style Out_Mutex stroke:#333,stroke-width:2px
     
 ```
 
