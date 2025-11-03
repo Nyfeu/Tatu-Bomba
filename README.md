@@ -156,3 +156,28 @@ Os requisitos não funcionais descrevem **como o sistema deve operar**, definind
 | **RNF07** | O robô deve entrar em **modo de segurança** (parar os motores) se a comunicação com o operador for perdida por um tempo pré-determinado. | **Obrigatório** |
 | **RNF08** | O peso total do robô montado, incluindo a bateria, deve ser **inferior a 1 kg**. | **Opcional** |
 
+## 💸 Estimativa de Custo Detalhada do Robô
+
+| Categoria | Componente | Qtd. | Preço Unitário (R$) | Subtotal (R$) |
+| :--- | :--- | :---: | :---: | :---: |
+| **Eletrônica Principal** | Raspberry Pi Zero 2W | 1 | R$ 250,00 | R$ 250,00 |
+| | Pi Camera (Compatível 5MP) | 1 | R$ 47,00 | R$ 47,00 |
+| | Cabo Adaptador Câmera Raspberry Pi | 1 | R$ 15,00 | R$ 15,00 |
+| | Cartão MicroSD 32GB | 1 | R$ 35,10 | R$ 35,10 |
+| | ESP32S NodeMCU (ESP-12) | 1 | R$ 47,90 | R$ 47,90 |
+| | IMU MPU6050 (Módulo) | 1 | R$ 16,05 | R$ 16,05 |
+| **Potência e Atuadores** | Bateria Li-Ion 3S (11.1V) | 1 | R$ 0,00 | R$ 0,00 |
+| | Conversor DC-DC Step-down 5V | 1 | R$ 18,90 | R$ 18,90 |
+| | Ponte H TB6612FNG (Módulo) | 1 | R$ 30,00 | R$ 30,00 |
+| | Motor DC (150 RPM c/ Eng. Metal) | 2 | R$ 28,49 | R$ 56,98 |
+| | Distribuidor de Energia (PDB/Bornes) | 1 | R$ 15,00 | R$ 15,00 |
+| **Sensores** | Encoder (LM393 - Módulo c/ Disco) | 2 | R$ 11,00 | R$ 22,00 |
+| **Chassi (Estrutura)** | 1kg Filamento ABS (Cinza) | 1 | R$ 110,00 | R$ 110,00 |
+| | Tubo PVC 100mm (40cm) | 1 | R$ 12,00 | R$ 12,00 |
+| | Tampas PVC 100mm | 2 | R$ 7,00 | R$ 14,00 |
+| **Mecânica (Miscelânea)** | Fuso dupla rosca M8 (com castanha)¹ | 1 | R$ 12,00 | R$ 12,00 |
+| | Rolamentos 608zz | 4 | R$ 2,50 | R$ 10,00 |
+| | Parafusos, Porcas, Fios (Diversos) | 1 | R$ 25,00 | R$ 25,00 |
+| | | | **Total Estimado:** | **R$ 736,93** |
+
+--- 
