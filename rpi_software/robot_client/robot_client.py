@@ -1,13 +1,14 @@
-import paho.mqtt.client as mqtt
-import time
+import serial
+import struct
 import json
-import random
+import time
 import logging
 import sys
+from functools import reduce
 from logging.handlers import RotatingFileHandler
+import paho.mqtt.client as mqtt
 
-# --- 1. CONFIGURACAO DO LOGGER ---
-# (A configuracao do logger permanece a mesma)
+# --- 1. CONFIGURAÇÃO DO LOGGER ---
 log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - [%(name)s] - %(message)s')
 logger = logging.getLogger("RobotClient")
 logger.setLevel(logging.INFO)
@@ -19,93 +20,146 @@ if not logger.handlers:
     file_handler.setFormatter(log_formatter)
     logger.addHandler(file_handler)
 
-# --- CONFIGURACOES ---
+# --- 2. CONFIGURAÇÕES GERAIS ---
+# MQTT
 BROKER_ADDRESS = "littlegreycell.local" 
 PORT = 1883
-TOPIC_TELEMETRY_BATTERY = "robot/tele/battery"
 TOPIC_TELEMETRY_IMU = "robot/tele/imu"
+TOPIC_TELEMETRY_BATTERY = "robot/tele/battery"
+TOPIC_TELEMETRY_ENCODERS = "robot/tele/encoders"
 TOPIC_COMMAND_DRIVE = "robot/cmnd/drive"
 
-# --- VARIAVEL GLOBAL DE ESTADO DA CONEXAO ---
-client_connected = False
+# SERIAL
+SERIAL_PORT = '/dev/ttyS0' 
+BAUD_RATE = 115200 
+SOP = b'\xAA\x55' # Start of Packet
+STRUCT_FORMAT = '<qffhiihB'
+STRUCT_SIZE = struct.calcsize(STRUCT_FORMAT)
 
-# --- CALLBACKS MQTT ---
+# --- 3. CLASSE PARA GERENCIAR A COMUNICAÇÃO SERIAL ---
+class SerialHandler:
+    def __init__(self, port, baudrate):
+        self.ser = None
+        try:
+            self.ser = serial.Serial(port, baudrate, timeout=1)
+            logger.info(f"Porta serial {port} aberta com sucesso.")
+        except serial.SerialException as e:
+            logger.error(f"Falha ao abrir a porta serial {port}: {e}")
+            sys.exit(1)
+
+    def read_telemetry_packet(self):
+        # Procura pelo marcador de início de pacote
+        byte1 = self.ser.read(1)
+        if not byte1 or byte1 != SOP[0:1]: return None
+        byte2 = self.ser.read(1)
+        if not byte2 or byte2 != SOP[1:2]: return None
+        
+        # Lê o pacote de dados
+        packet_buffer = self.ser.read(STRUCT_SIZE)
+        
+        if len(packet_buffer) == STRUCT_SIZE:
+            # Valida o checksum
+            data_bytes = packet_buffer[:-1]
+            received_checksum = packet_buffer[-1]
+            calculated_checksum = reduce(lambda x, y: x ^ y, data_bytes)
+
+            if received_checksum == calculated_checksum:
+                # Desempacota e retorna os dados
+                return struct.unpack(STRUCT_FORMAT, packet_buffer)
+            else:
+                logger.warning(f"Checksum inválido! Recebido: {received_checksum}, Calculado: {calculated_checksum}")
+                return None
+        return None
+
+    def send_drive_command(self, left_speed, right_speed):
+        command = f"DRIVE:{int(left_speed)},{int(right_speed)}\n"
+        self.ser.write(command.encode('utf-8'))
+        logger.info(f"Comando enviado para o ESP32: {command.strip()}")
+        
+    def close(self):
+        if self.ser and self.ser.is_open:
+            self.ser.write(b"DRIVE:0,0\n") # Comando de segurança ao fechar
+            self.ser.close()
+            logger.info("Porta serial fechada.")
+
+# --- 4. CALLBACKS MQTT ---
 def on_connect(client, userdata, flags, reason_code, properties):
-    """Callback chamado quando a conexao e estabelecida."""
-    global client_connected
     if reason_code.is_failure:
-        # A mensagem de erro agora e um aviso, pois vamos tentar reconectar.
         logger.warning(f"Falha ao conectar ao broker: {reason_code}")
-        client_connected = False
     else:
-        # Limpa a linha da animacao e imprime a mensagem de sucesso
-        print("\n" + " " * 80, end="\r") 
         logger.info("Conectado com sucesso ao Broker MQTT.")
-        logger.info(f"Inscrevendo-se no topico de comandos: {TOPIC_COMMAND_DRIVE}")
+        logger.info(f"Inscrevendo-se no tópico de comandos: {TOPIC_COMMAND_DRIVE}")
         client.subscribe(TOPIC_COMMAND_DRIVE)
-        client_connected = True
 
 def on_message(client, userdata, msg):
-    """Callback para recebimento de mensagens."""
-    logger.info(f"Comando recebido | Topico: '{msg.topic}' | Payload: {msg.payload.decode()}")
+    """Callback para quando um comando é recebido via MQTT."""
+    serial_handler = userdata['serial_handler']
+    
+    try:
+        payload = msg.payload.decode()
+        logger.info(f"Comando MQTT recebido | Tópico: '{msg.topic}' | Payload: {payload}")
+        
+        data = json.loads(payload)
+        left = data.get('left', 0)
+        right = data.get('right', 0)
+        
+        serial_handler.send_drive_command(left, right)
+        
+    except json.JSONDecodeError:
+        logger.error(f"Erro ao decodificar JSON do payload: {msg.payload}")
+    except Exception as e:
+        logger.error(f"Erro ao processar mensagem MQTT: {e}")
 
 def on_disconnect(client, userdata, flags, reason_code, properties):
-    """Callback chamado quando o cliente se desconecta."""
-    global client_connected
     logger.warning(f"Desconectado do broker! Motivo: {reason_code}")
-    client_connected = False
 
-# --- LOGICA PRINCIPAL ---
-logger.info("Iniciando cliente do robo...")
+# --- 5. LÓGICA PRINCIPAL ---
+if __name__ == "__main__":
+    logger.info("Iniciando cliente do robô (ponte Serial-MQTT)...")
 
-client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-client.on_connect = on_connect
-client.on_message = on_message
-client.on_disconnect = on_disconnect
+    # Inicializa o handler da serial
+    serial_handler = SerialHandler(SERIAL_PORT, BAUD_RATE)
+    
+    # Inicializa o cliente MQTT e passa o handler da serial para os callbacks
+    user_data = {'serial_handler': serial_handler}
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, userdata=user_data)
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.on_disconnect = on_disconnect
+    
+    try:
+        client.connect(BROKER_ADDRESS, PORT, 60)
+        client.loop_start() # Inicia o loop MQTT em uma thread separada
 
-# Tenta a conexao inicial de forma nao bloqueante
-client.connect_async(BROKER_ADDRESS, PORT, 60)
-client.loop_start()
-
-animation_states = ["   ", ".  ", ".. ", "..."]
-animation_index = 0
-
-try:
-    while True:
-        if client_connected:
-            # Se conectado, publica a telemetria
-            battery_voltage = round(random.uniform(7.0, 8.4), 2)
-            imu_data = {
-                "pitch": round(random.uniform(-5.0, 5.0), 2),
-                "roll": round(random.uniform(-5.0, 5.0), 2),
-                "yaw": round(random.uniform(0.0, 360.0), 2)
-            }
-            battery_payload = json.dumps({"voltage": battery_voltage})
-            imu_payload = json.dumps(imu_data)
-
-            logger.info(f"Publicando telemetria: Bateria={battery_payload}, IMU={imu_payload}")
+        while True:
+            # O loop principal agora lê da serial e publica no MQTT
+            telemetry_data = serial_handler.read_telemetry_packet()
             
-            client.publish(TOPIC_TELEMETRY_BATTERY, battery_payload)
-            client.publish(TOPIC_TELEMETRY_IMU, imu_payload)
-            
-            time.sleep(2)
-        else:
-            # Se nao conectado, exibe a animacao de espera
-            # O loop em segundo plano do paho-mqtt ja esta a tratar da reconexao.
-            message = f"Aguardando conexao com Mosquitto (Broker MQTT){animation_states[animation_index]}"
-            
-            # Usa sys.stdout para escrever na mesma linha
-            sys.stdout.write(message + '\r')
-            sys.stdout.flush()
-            
-            animation_index = (animation_index + 1) % len(animation_states)
-            time.sleep(0.5)
+            if telemetry_data:
+                # Desempacota os dados com nomes claros
+                (timestamp, pitch, roll, gyro_z, 
+                 enc_l, enc_r, battery_mv, checksum) = telemetry_data
 
-except KeyboardInterrupt:
-    logger.info("Sinal de interrupcao recebido. Desligando...")
-finally:
-    client.loop_stop()
-    client.disconnect()
-    print("\n" + " " * 80, end="\r") # Limpa a linha final
-    logger.info("Cliente do robo encerrado.")
+                # Cria e publica os payloads JSON
+                imu_payload = json.dumps({"pitch": round(pitch, 2), "roll": round(roll, 2), "gyro_z": gyro_z})
+                battery_payload = json.dumps({"voltage_mv": battery_mv})
+                encoders_payload = json.dumps({"left": enc_l, "right": enc_r, "timestamp_us": timestamp})
+                
+                client.publish(TOPIC_TELEMETRY_IMU, imu_payload)
+                client.publish(TOPIC_TELEMETRY_BATTERY, battery_payload)
+                client.publish(TOPIC_TELEMETRY_ENCODERS, encoders_payload)
+                
+                logger.debug(f"Telemetria publicada: Bat:{battery_mv}mV, Pitch:{pitch:.1f}, Roll:{roll:.1f}")
+            
+            time.sleep(0.005)
 
+    except KeyboardInterrupt:
+        logger.info("Sinal de interrupção recebido. Desligando...")
+    except Exception as e:
+        logger.critical(f"Erro fatal na thread principal: {e}")
+    finally:
+        logger.info("Encerrando conexões...")
+        client.loop_stop()
+        client.disconnect()
+        serial_handler.close()
+        logger.info("Cliente do robô encerrado.")

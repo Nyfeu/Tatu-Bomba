@@ -9,7 +9,6 @@ from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 
 # --- Configuração da Página HTML Simples ---
-# Isso cria uma página web básica para exibir o stream
 PAGE = """
 <html>
 <head>
@@ -17,7 +16,7 @@ PAGE = """
 </head>
 <body>
 <h1>Câmera MJPEG - Pi Zero 2W</h1>
-<img src="stream.mjpg" width="640" height="480" />
+<img src="stream.mjpg" width="1280" height="720" />
 </body>
 </html>
 """
@@ -83,7 +82,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 # --- Execução Principal ---
 picam2 = Picamera2()
 # Configura a resolução do vídeo. Use resoluções menores para melhor performance no Pi Zero
-picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+picam2.configure(picam2.create_video_configuration(main={"size": (1280, 720)}))
 output = StreamingOutput()
 # Inicia o encoder para MJPEG e associa com a saída de streaming
 picam2.start_recording(JpegEncoder(), FileOutput(output))
