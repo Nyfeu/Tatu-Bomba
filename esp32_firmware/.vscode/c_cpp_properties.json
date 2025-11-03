@@ -10,7 +10,6 @@
             "includePath": [
                 "C:/Users/andre/Projeto/Tatu-Bomba/02_Software/esp32_firmware/include",
                 "C:/Users/andre/Projeto/Tatu-Bomba/02_Software/esp32_firmware/src",
-                "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/BluetoothSerial/src",
                 "C:/Users/andre/Projeto/Tatu-Bomba/02_Software/esp32_firmware/.pio/libdeps/esp32dev/Adafruit MPU6050",
                 "C:/Users/andre/Projeto/Tatu-Bomba/02_Software/esp32_firmware/.pio/libdeps/esp32dev/Adafruit Unified Sensor",
                 "C:/Users/andre/Projeto/Tatu-Bomba/02_Software/esp32_firmware/.pio/libdeps/esp32dev/Adafruit BusIO",
@@ -218,6 +217,7 @@
                 "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/ArduinoOTA/src",
                 "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/AsyncUDP/src",
                 "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src",
+                "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/BluetoothSerial/src",
                 "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/DNSServer/src",
                 "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/EEPROM/src",
                 "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/ESP32/src",
@@ -252,7 +252,6 @@
                 "path": [
                     "C:/Users/andre/Projeto/Tatu-Bomba/02_Software/esp32_firmware/include",
                     "C:/Users/andre/Projeto/Tatu-Bomba/02_Software/esp32_firmware/src",
-                    "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/BluetoothSerial/src",
                     "C:/Users/andre/Projeto/Tatu-Bomba/02_Software/esp32_firmware/.pio/libdeps/esp32dev/Adafruit MPU6050",
                     "C:/Users/andre/Projeto/Tatu-Bomba/02_Software/esp32_firmware/.pio/libdeps/esp32dev/Adafruit Unified Sensor",
                     "C:/Users/andre/Projeto/Tatu-Bomba/02_Software/esp32_firmware/.pio/libdeps/esp32dev/Adafruit BusIO",
@@ -460,6 +459,7 @@
                     "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/ArduinoOTA/src",
                     "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/AsyncUDP/src",
                     "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src",
+                    "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/BluetoothSerial/src",
                     "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/DNSServer/src",
                     "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/EEPROM/src",
                     "C:/Users/andre/.platformio/packages/framework-arduinoespressif32/libraries/ESP32/src",

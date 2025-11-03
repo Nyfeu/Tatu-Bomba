@@ -1,4 +1,7 @@
 {
     "glassit.alpha": 150,
-    "glassit.force_sway": true
+    "glassit.force_sway": true,
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda",
+    "python-envs.pythonProjects": []
 }
