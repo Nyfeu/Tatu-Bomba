@@ -60,7 +60,7 @@ graph TD
         end
 
         subgraph "Processamento"
-            Butterworth["Filtro Butterworth"]
+            MediaMovel["Média Móvel"]
             Complementar["Filtro Complementar"]
             MotorLogic["Lógica de Motores"]
         end
@@ -71,7 +71,7 @@ graph TD
             Out_GPIO["GPIO (Direção)"]
         end
         
-        In_I2C --> Butterworth --> Complementar --> Out_Queue
+        In_I2C --> MediaMovel --> Complementar --> Out_Queue
         In_PCNT --> Out_Queue
         In_ADC --> Out_Queue
         In_Mutex --> MotorLogic --> Out_LEDC & Out_GPIO

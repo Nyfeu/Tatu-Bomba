@@ -7,7 +7,7 @@ Este diretório contém o software necessário para operar o ambiente do operado
 
 ## Arquitetura e Automação ⚙️
 
-Cada componente é gerenciado por seu próprio script PowerShell, promovendo um fluxo de trabalho desacoplado, limpo e robusto:
+Cada componente é gerenciado por seu próprio script PowerShell, promovendo o fluxo de trabalho:
 
 - **Infraestrutura:** O broker é controlado pelo script `mosquitto.ps1`.
 - **Aplicação:** O dashboard é iniciado pelo script `dashboard.ps1`.
@@ -27,7 +27,7 @@ Antes de começar, certifique-se de ter os seguintes softwares instalados e func
 Primeiramente, execute:
 
 ```powershell
-.\start_broker.ps1 start
+.\mosquitto.ps1 start
 ```
 
 O script irá:

@@ -7,7 +7,6 @@ Esta pasta contém todo o software que roda na **Raspberry Pi Zero 2W**, atuando
 - **`config.py`**: Arquivo central de configuração para definir o endereço do broker MQTT e a porta serial.
 - **`robot_client.py`**: Serviço principal. Lê pacotes binários do ESP32 via UART, retransmite telemetria para o broker MQTT e envia comandos do dashboard para o ESP32.
 - **`video_server.py`**: Servidor web leve (Flask) que transmite o vídeo da câmera em formato MJPEG.
-- **`robot_ekf.py`**: *(Futuro)* Módulo com a classe do Filtro de Kalman Estendido.
 - **`requirements.txt`**: Lista de todas as dependências Python necessárias.
 
 ## ⚙️ Configuração do Ambiente (Primeira Vez)
@@ -17,7 +16,7 @@ Esta pasta contém todo o software que roda na **Raspberry Pi Zero 2W**, atuando
 ```bash
 sudo apt update
 sudo apt full-upgrade
-sudo apt install -y python3-pip python3-venv libcamera-apps python3-picamera2
+sudo apt install -y python3-pip python3-venv libcamera-apps python3-picamera2 libcap-dev
 ```
 
 ### 🐍 Configurar o Ambiente Python
