@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
         # Variáveis para simulação
         angle = 0
-        battery_mv = 11000  # Começa em 11V (11000mV)
+        battery_mv = 12600  # Começa em 12.6V (12600mV)
         battery_direction = -1
         encoder_count = 0
 
@@ -56,9 +56,9 @@ if __name__ == "__main__":
             angle = (angle + 1) % 360
 
             # --- Simula a Bateria (voltage_mv) ---
-            # Varia a voltagem entre 6.0V (6000mV) e 11.0V (11000mV)
+            # Varia a voltagem entre 6.0V (6000mV) e 12.6V (12600mV)
             battery_mv += battery_direction * 20  # Altera em 20mV por ciclo
-            if battery_mv >= 11000:
+            if battery_mv >= 12600:
                 battery_direction = -1
             elif battery_mv <= 6000:
                 battery_direction = 1

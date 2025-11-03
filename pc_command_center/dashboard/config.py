@@ -7,7 +7,7 @@ TOPIC_TELEMETRY = "robot/tele/#"                              # Inscreve-se em t
 # --- CONFIGURAÇÕES DE VÍDEO ---
 VIDEO_URL = "http://pizero.local:8000/stream.mjpg"            # URL do stream de vídeo MJPEG do Raspberry Pi Zero
 MIN_VOLTAGE = 6.0                                             # Tensão elétrica (V) mínima para o indicador de bateria
-MAX_VOLTAGE = 11.0                                            # Voltagem máxima para o indicador de bateria
+MAX_VOLTAGE = 12.6                                            # Voltagem máxima para o indicador de bateria
 
 # --- CONFIGURAÇÕES PARA VELOCIDADE DO ROBÔ ---
 ENCODER_PPR = 20                                              # Pulsos por revolução do encoder
