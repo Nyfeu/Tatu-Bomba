@@ -2,7 +2,9 @@
 
 ## 📄 Resumo do Projeto
 
-Este repositório contém todo o software embarcado para o projeto **Tatu-Bomba**, um **Robô de Reconhecimento Tático** (*TTR - Throwable Tactical Robot*). O objetivo é desenvolver uma plataforma de vigilância móvel capaz de ser controlada remotamente, transmitindo vídeo em tempo real e, futuramente, executando tarefas autônomas com inteligência artificial.
+Este repositório contém todo o software embarcado para o projeto **Tatu-Bomba**, um **Robô de Reconhecimento Tático** (inspirado no *TTR - Throwable Tactical Robot* da *Recon Robotics*). O objetivo é desenvolver uma plataforma de vigilância móvel capaz de ser controlada remotamente, transmitindo vídeo em tempo real.
+
+![Modelo CAD 3D do chassi do Tatu-Bomba](./cad_chassi.png)
 
 ## 🏗️ Arquitetura do Sistema
 
@@ -99,6 +101,12 @@ O controlador de tempo real do robô, escrito em C++/Arduino com FreeRTOS. Suas 
 - *Envio de Telemetria*: Agrupa todos os dados dos sensores em um pacote binário e o envia via UART para a Raspberry Pi.
 
 [➡️ Clique aqui para acessar o README completo do firmware do ESP32](./esp32_firmware/README.md)
+
+### 🎮 Dashboard de Comando no PC
+
+O dashboard roda na máquina do usuário - com uma interface intuitiva, desenvolvida usando PyQt - permitindo a leitura da telemetria e controle de movimentação (além da visualização do vídeo).
+
+[➡️ Clique aqui para acessar o README completo do dashboard](./pc_command_center/README.md)
 
 ## ✨ Funcionalidades Principais
 - ✅ Controle Remoto via Wi-Fi: Movimentação confiável através de uma interface de controle.
