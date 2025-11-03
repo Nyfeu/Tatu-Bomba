@@ -1,6 +1,3 @@
-# background_workers.py
-# Versao com correcao de importacao circular.
-
 import cv2
 import numpy as np
 import logging
@@ -23,7 +20,6 @@ class MqttWorker(QObject):
         self.mqtt_handler = MqttClientHandler(config.MQTT_BROKER, config.MQTT_PORT)
         self.mqtt_handler.add_external_on_message_callback(self._handle_incoming_message)
         self.mqtt_handler.add_external_on_connect_callback(self._handle_connection_result)
-        # Adiciona um callback para a desconexao para atualizar a UI
         self.mqtt_handler.client.on_disconnect = self._handle_disconnection
 
     @pyqtSlot()

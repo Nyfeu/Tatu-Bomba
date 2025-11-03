@@ -1,7 +1,3 @@
-# mqtt_client.py
-# Módulo que fornece uma classe de interface para o MQTT.
-# Versão com o método 'is_connected()' adicionado.
-
 import paho.mqtt.client as mqtt
 import logging
 
@@ -48,7 +44,6 @@ class MqttClientHandler:
     def add_external_on_connect_callback(self, callback):
         self.external_on_connect = callback
 
-    # --- NOVO MÉTODO ---
     def is_connected(self):
         """Retorna o status atual da conexao."""
         return self.client_connected

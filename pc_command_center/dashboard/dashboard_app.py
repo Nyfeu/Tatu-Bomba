@@ -1,8 +1,3 @@
-# dashboard_app.py
-# Versão com a nova interface HUD modernizada.
-# - Lógica de controlo do mapa corrigida.
-# - Integração do novo MapContainerWidget.
-
 import json
 import logging
 import math
@@ -113,7 +108,7 @@ class MainWindow(QMainWindow):
         self.stop_workers_signal.connect(self.video_worker.stop)
         self.video_thread.start()
         
-        # --- Conecta o sinal do botão de reset ---
+        # Conecta o sinal do botão de reset
         self.map_container.map_widget.reset_map_signal.connect(self.on_reset_map)
 
 
@@ -126,7 +121,6 @@ class MainWindow(QMainWindow):
         throttle, turn = 0, 0
         if 'W' in self.keys_pressed: throttle = 1
         elif 'S' in self.keys_pressed: throttle = -1
-        # --- CORREÇÃO: Lógica de rotação do mapa invertida para corresponder à perceção do utilizador ---
         if 'A' in self.keys_pressed: turn = -1  
         elif 'D' in self.keys_pressed: turn = 1
         
@@ -136,18 +130,14 @@ class MainWindow(QMainWindow):
             distance = throttle * linear_speed * dt
             self.robot_pose['x'] += distance * math.cos(angle_rad)
             self.robot_pose['y'] += distance * math.sin(angle_rad)
-            # --- Atualiza o mapa dentro do container ---
             self.map_container.map_widget.add_path_point(self.robot_pose['x'], self.robot_pose['y'])
         
-        # --- Atualiza o mapa dentro do container ---
         self.map_container.map_widget.update_robot_pose(self.robot_pose['x'], self.robot_pose['y'], self.robot_pose['angle'])
-
 
     @pyqtSlot()
     def on_reset_map(self):
         logger.info("Resetando o mapa e a odometria simulada.")
         self.robot_pose = {'x': 0.0, 'y': 0.0, 'angle': 0.0}
-        # --- Reseta o mapa dentro do container ---
         self.map_container.map_widget.reset_map()
 
 
@@ -167,9 +157,6 @@ class MainWindow(QMainWindow):
         if drive_payload != self.last_drive_payload:
             self.command_signal.emit(config.TOPIC_COMMAND_DRIVE, json.dumps(drive_payload))
             self.last_drive_payload = drive_payload
-            
-            linear_speed = (left_speed + right_speed) / 2.0
-            self.speedometer_widget.set_speed(abs(linear_speed))
 
     def keyPressEvent(self, event):
         if event.isAutoRepeat(): return
@@ -190,37 +177,45 @@ class MainWindow(QMainWindow):
     @pyqtSlot(str, str)
     def update_telemetry(self, topic, payload):
         try:
-            # Extrai a última parte do tópico para usar como chave (ex: "imu", "battery")
+
             key = topic.split('/')[-1]
-            if key == '#': # Ignora o caso da subscrição geral
+            if key == '#':
                 key = topic.split('/')[-2]
 
             data = json.loads(payload)
 
-            # Atualiza o dicionário de estado com os novos dados
             self.telemetry_state[key] = data
 
-            # Converte todo o dicionário de estado para uma string JSON formatada
             full_telemetry_str = json.dumps(self.telemetry_state, indent=2)
             self.telemetry_widget.update_telemetry(full_telemetry_str)
 
-            # --- Lógica existente para atualizar os outros widgets ---
             if key == "battery":
-                voltage = data.get('voltage', 0.0)
+                voltage_mv = data.get('voltage_mv', 0.0)
+                voltage_v = voltage_mv / 1000.0
                 min_v, max_v = config.MIN_VOLTAGE, config.MAX_VOLTAGE
-                percent = int(100 * (voltage - min_v) / (max_v - min_v))
+                percent = int(100 * (voltage_v - min_v) / (max_v - min_v))
                 percent = max(0, min(100, percent))
-                self.info_widget.set_battery_value(voltage, percent)
+                self.info_widget.set_battery_value(voltage_v, percent)
 
             elif key == "imu":
                 pitch = data.get('pitch', 0.0)
                 roll = data.get('roll', 0.0)
-                yaw = data.get('yaw', 0.0)
+                yaw = data.get('gyro_z', 0.0)
                 self.horizon_widget.set_angles(pitch, roll)
                 self.compass_widget.set_heading(yaw)
 
+            elif key == "encoders":
+                enc_l = data.get('left', 0)
+                enc_r = data.get('right', 0)
+                
+                rpm_l = enc_l * config.ENCODER_TO_RPM_K
+                rpm_r = enc_r * config.ENCODER_TO_RPM_K
+
+                robot_speed_rpm = (rpm_l + rpm_r) / 2.0
+                
+                self.speedometer_widget.set_speed(abs(robot_speed_rpm))
+
         except (json.JSONDecodeError, IndexError):
-            # Ignora erros de parsing ou de tópicos mal formatados
             pass 
         except Exception as e:
             logger.error(f"Erro inesperado em update_telemetry: {e}")
@@ -228,6 +223,7 @@ class MainWindow(QMainWindow):
     @pyqtSlot(np.ndarray)
     def update_video_frame(self, frame):
         try:
+            frame = cv2.flip(frame, -1)
             h, w, ch = frame.shape
             if h > 0 and w > 0:
                 rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)

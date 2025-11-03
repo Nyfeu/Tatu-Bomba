@@ -1,9 +1,5 @@
-# ui_widgets.py
-# Módulo com widgets modernizados para o dashboard HUD.
-# - MAPA: Lógica de centralização reforçada.
-# - BÚSSOLA: Ajustado o espaçamento vertical dos números.
-
 import math
+import config
 from PyQt6.QtWidgets import (QWidget, QGraphicsView, QGraphicsScene,
                              QGraphicsPathItem, QGraphicsPolygonItem, QLabel,
                              QGridLayout, QPushButton, QTextEdit)
@@ -98,7 +94,6 @@ class TopLeftInfoWidget(QWidget):
 
 
 class ArtificialHorizonWidget(QWidget):
-    # (Código inalterado)
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setMinimumSize(200, 200)
@@ -112,7 +107,6 @@ class ArtificialHorizonWidget(QWidget):
         self.roll = roll
         self.update()
 
-    # SUBSTITUA TODO O MÉTODO paintEvent POR ESTE:
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -123,20 +117,16 @@ class ArtificialHorizonWidget(QWidget):
 
         painter.save()
         
-        # 1. Criar a área de recorte circular
         clip_path = QPainterPath()
         clip_path.addEllipse(center, radius, radius)
         painter.setClipPath(clip_path)
 
-        # 2. Mover a origem para o centro, rotacionar para o ROLL e transladar para o PITCH
         painter.translate(center)
         painter.rotate(-self.roll)
         
-        # O pitch é uma translação vertical, aplicada DEPOIS da rotação
         pitch_offset = self.pitch * 3
         painter.translate(0, pitch_offset)
 
-        # 3. Desenhar o céu e a terra
         sky_gradient = QLinearGradient(0, -height, 0, 0)
         sky_gradient.setColorAt(0, QColor("#87CEEB"))
         sky_gradient.setColorAt(1, QColor("#4682B4"))
@@ -145,34 +135,29 @@ class ArtificialHorizonWidget(QWidget):
         ground_gradient.setColorAt(1, QColor("#A0522D"))
 
         painter.setPen(Qt.PenStyle.NoPen)
-        # O céu é um grande retângulo desenhado acima do horizonte (y=0)
         painter.setBrush(QBrush(sky_gradient))
         painter.drawRect(int(-width * 1.5), int(-height * 1.5), int(width * 3), int(height * 1.5))
-        # A terra é um grande retângulo desenhado abaixo do horizonte (y=0)
         painter.setBrush(QBrush(ground_gradient))
         painter.drawRect(int(-width * 1.5), 0, int(width * 3), int(height * 1.5))
 
-        # 4. Desenhar as linhas de pitch
         painter.setPen(QPen(Qt.GlobalColor.white, 2))
         painter.setFont(QFont('Segoe UI', 8))
         for angle in range(-90, 91, 10):
             if angle == 0: continue
-            y_pos = int(-angle * 3)  # A posição é relativa ao horizonte (0,0)
+            y_pos = int(-angle * 3) 
             line_width = int(radius / 4)
             painter.drawLine(int(-line_width), y_pos, int(line_width), y_pos)
             painter.drawText(QRectF(int(line_width + 5), y_pos - 8, 30, 16), Qt.AlignmentFlag.AlignLeft, str(abs(angle)))
             painter.drawText(QRectF(int(-line_width - 35), y_pos - 8, 30, 16), Qt.AlignmentFlag.AlignRight, str(abs(angle)))
         
-        painter.drawLine(int(-radius * 1.5), 0, int(radius * 1.5), 0) # Linha do horizonte
+        painter.drawLine(int(-radius * 1.5), 0, int(radius * 1.5), 0)
         
         painter.restore()
 
-        # --- Desenhar elementos estáticos (bezel, ponteiro de roll, avião) ---
         painter.setPen(QPen(QColor(119, 141, 169, 150), 2))
         painter.setBrush(QBrush(QColor(27, 38, 59, 180)))
         painter.drawEllipse(center, radius, radius)
         
-        # Ponteiro de Roll (estático no topo)
         painter.save()
         painter.translate(center)
         roll_pointer = QPolygonF([QPointF(0, -radius+2), QPointF(-5, -radius + 12), QPointF(5, -radius + 12)])
@@ -191,19 +176,17 @@ class ArtificialHorizonWidget(QWidget):
             painter.drawLine(0, int(-radius), 0, int(-radius + line_len))
             painter.restore()
         
-        # Símbolo do avião (estático no centro)
         painter.setPen(QPen(QColor("#f1c40f"), 3))
         painter.drawLine(int(center.x() - 50), int(center.y()), int(center.x() - 10), int(center.y()))
         painter.drawLine(int(center.x() + 10), int(center.y()), int(center.x() + 50), int(center.y()))
         painter.drawEllipse(center, 3, 3)
 
 class SpeedometerWidget(QWidget):
-    # (Código inalterado)
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setMinimumSize(200, 200)
         self.speed = 0.0
-        self.max_speed = 100.0
+        self.max_speed = config.SPEEDOMETER_MAX_RPM
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
     @pyqtSlot(float)
@@ -249,7 +232,7 @@ class SpeedometerWidget(QWidget):
         painter.setFont(QFont('Segoe UI', 18, QFont.Weight.Bold)); painter.setPen(QPen(Qt.GlobalColor.white))
         painter.drawText(QRectF(center.x() - 50, center.y() + 20, 100, 30), Qt.AlignmentFlag.AlignCenter, f"{self.speed:.1f}")
         painter.setFont(QFont('Segoe UI', 10))
-        painter.drawText(QRectF(center.x() - 50, center.y() + 45, 100, 20), Qt.AlignmentFlag.AlignCenter, "pixels/s")
+        painter.drawText(QRectF(center.x() - 50, center.y() + 45, 100, 20), Qt.AlignmentFlag.AlignCenter, "RPM")
 
 
 class HorizontalCompassWidget(QWidget):
@@ -273,15 +256,11 @@ class HorizontalCompassWidget(QWidget):
         center_x = width / 2
         tape_height = height - 30 
 
-        # Desenha o fundo
         background_rect = QRectF(0, 0, width, tape_height)
         painter.setBrush(QBrush(QColor(27, 38, 59, 180)))
         painter.setPen(QPen(QColor(119, 141, 169, 150)))
         painter.drawRoundedRect(background_rect, 10, 10)
 
-        # --- INÍCIO DA CORREÇÃO ---
-        # Salva o estado do painter e define uma área de corte (clipping)
-        # Tudo o que for desenhado a seguir só aparecerá dentro desta área
         painter.save()
         painter.setClipRect(background_rect.adjusted(5, 5, -5, -5))
 
@@ -308,15 +287,10 @@ class HorizontalCompassWidget(QWidget):
             elif angle_norm % 5 == 0:
                 painter.drawLine(int(x_pos), int(tape_height * 0.5), int(x_pos), int(tape_height * 0.65))
         
-        # Restaura o estado do painter (remove a área de corte)
         painter.restore()
-        # --- FIM DA CORREÇÃO ---
-
-        # Desenha o ponteiro central (agora por cima da área de corte)
-        painter.setPen(QPen(QColor("#f1c40f"), 2)) # Linha mais fina
+        painter.setPen(QPen(QColor("#f1c40f"), 2))
         painter.drawLine(QPointF(center_x, 5), QPointF(center_x, tape_height - 5))
         
-        # Desenha a caixa com o valor numérico
         text_rect = QRectF(center_x - 35, tape_height + 2, 70, 25)
         painter.setBrush(QBrush(QColor(13, 27, 42, 200)))
         painter.setPen(QPen(QColor(119, 141, 169, 150)))
@@ -355,7 +329,6 @@ class MapWidget(QGraphicsView):
         self.robot_item.setPen(QPen(Qt.PenStyle.NoPen))
         self.scene.addItem(self.robot_item)
 
-        # Apenas prepara os dados, não mexe na câmara ainda
         self._reset_scene_data()
 
     def showEvent(self, event):
@@ -365,7 +338,6 @@ class MapWidget(QGraphicsView):
         pois aqui o widget já tem o seu tamanho final.
         """
         super().showEvent(event)
-        # Configura a vista da câmara pela primeira vez
         self._reset_view()
 
     def _reset_scene_data(self):
@@ -412,23 +384,12 @@ class MapWidget(QGraphicsView):
 
     @pyqtSlot(float, float, float)
     def update_robot_pose(self, x, y, angle_deg):
-        # 1. Atualiza a posição e rotação do item do robô na cena
         self.robot_item.setPos(x, -y)
         self.robot_item.setRotation(-angle_deg)
-        
-        # --- INÍCIO DA LÓGICA DE CENTRALIZAÇÃO ---
-        # 2. Reseta completamente qualquer transformação anterior da câmera (zoom, pan, rotação)
         self.resetTransform()
-
-        # 1. Centraliza primeiro no robô
         self.centerOn(self.robot_item)
-
-        # 2. Depois aplica a rotação da câmera
         self.rotate(angle_deg - 90)
-
-        # 3. E por último, força centralização de novo (corrige o deslocamento pós-rotação)
         self.centerOn(self.robot_item)
-        # --- FIM DA LÓGICA DE CENTRALIZAÇÃO ---
 
 class MapContainerWidget(QWidget):
     """Container para o mapa e o seu botão de reset."""
@@ -504,7 +465,7 @@ class RawTelemetryWidget(QWidget):
     """Um widget para exibir o payload MQTT bruto."""
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedSize(180, 200)
+        self.setFixedSize(180, 270)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         layout = QGridLayout(self)
