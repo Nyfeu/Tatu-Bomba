@@ -47,6 +47,7 @@ print(f"\nProcurando a imagem '{TEMPLATE_PATH}' (usando SIFT). Pressione 'q' par
 # --- 5. Loop Principal de Processamento ---
 while True:
     ret, frame = cap.read()
+    frame = cv2.flip(frame, -1)
     if not ret:
         print("Erro: Não foi possível ler o frame.")
         break
