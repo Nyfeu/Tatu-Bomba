@@ -53,3 +53,9 @@ Para iniciar os serviços automaticamente com o robô, use os arquivos de servi�
     sudo systemctl status robot_client.service
     sudo journalctl -u robot_client.service -f
     ```
+
+## 🔨 Testes
+
+Além do código-fonte dos serviços que rodarão no **RPi**, há também códigos de teste em: `rpi_software\test` - são eles:
+- **`robot_mock.py`**: Código responsável por mockar (simular) os dados gerados pela plataforma móvel, publicando nos tópicos MQTT, para testar o comportamento da telemetria no dashboard (do **pc_command_center**).
+- **`teste_uart.py`**: Script responsável por testes de comunicação serial (UART) entre o **ESP32** e o **RPi**.

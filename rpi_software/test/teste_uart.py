@@ -3,7 +3,7 @@ import struct
 import time
 import threading
 
-# Tenta abrir a porta serial. No RPi Zero 2W, geralmente é '/dev/ttyS0'.
+# Tenta abrir a porta serial. No RPi Zero 2W é '/dev/ttyS0'.
 SERIAL_PORT = "/dev/ttyS0"
 BAUD_RATE = 115200
 
@@ -18,12 +18,10 @@ except serial.SerialException as e:
 
 # --- FORMATO DA STRUCT SEM O CHECKSUM ---
 # Formato original: '<B q f f h i i H B'
-# O último 'B' (checksum) foi removido.
 TELEMETRY_FORMAT = '<B q f f h i i H'
 TELEMETRY_SIZE = struct.calcsize(TELEMETRY_FORMAT)
 
 # --- Função para Receber e Decodificar Telemetria (em uma thread separada) ---
-
 def read_telemetry():
     """Lê e decodifica os pacotes binários de telemetria do ESP32."""
     print("Thread de telemetria iniciada. Aguardando dados...")
@@ -34,19 +32,16 @@ def read_telemetry():
         try:
             start_byte = ser.read(1)
             if start_byte == b'\xaa':
-                # Lê o tamanho do pacote SEM o checksum.
-                # O último byte enviado pelo ESP32 (o checksum não calculado) será ignorado.
                 packet_data = ser.read(TELEMETRY_SIZE - 1)
                 
                 if len(packet_data) == TELEMETRY_SIZE - 1:
                     full_packet = start_byte + packet_data
                     
                     try:
-                        # Desempacota os dados sem esperar pelo checksum
+ 
                         unpacked_data = struct.unpack(TELEMETRY_FORMAT, full_packet)
                         start, ts, pitch, roll, gz, enc_l, enc_r, batt = unpacked_data
                         
-                        # --- LÓGICA DE CHECKSUM REMOVIDA ---
                         print(f"\r\033[KTelemetria: Pitch={pitch:6.2f}, Roll={roll:6.2f}, EncL={enc_l:6d}, EncR={enc_r:6d}, Batt={batt/1000.0:.2f}V | Digite o comando: ", end="")
 
                     except struct.error:
@@ -55,9 +50,6 @@ def read_telemetry():
         except serial.SerialException:
             print("\nErro na porta serial. Encerrando thread de telemetria.")
             break
-
-# --- O resto do script (print_instructions, if __name__ == "__main__":, etc.) continua exatamente o mesmo ---
-# (O código para enviar comandos não precisa de alteração)
 
 def print_instructions():
     """Imprime as instruções de uso do terminal interativo."""

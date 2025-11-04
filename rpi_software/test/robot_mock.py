@@ -5,7 +5,6 @@ import logging
 import math
 
 # --- 1. CONFIGURAÇÃO (Coprada do robot_client.py) ---
-# Altere para o IP do seu broker se não estiver rodando localmente
 BROKER_ADDRESS = "localhost" 
 PORT = 1883
 TOPIC_TELEMETRY_IMU = "robot/tele/imu"
@@ -56,7 +55,7 @@ if __name__ == "__main__":
             angle = (angle + 1) % 360
 
             # --- Simula a Bateria (voltage_mv) ---
-            # Varia a voltagem entre 6.0V (6000mV) e 12.6V (12600mV)
+            # Varia a tensão elétrica entre 6.0V (6000mV) e 12.6V (12600mV)
             battery_mv += battery_direction * 20  # Altera em 20mV por ciclo
             if battery_mv >= 12600:
                 battery_direction = -1
@@ -71,8 +70,6 @@ if __name__ == "__main__":
             # --- Simula Encoders (MODIFICADO) ---
             # Faz o contador variar de 0 a 10 (em passos de 1) e depois reiniciar
             encoder_count = (encoder_count + 1) % 11 
-            # (Usa 105 para que o último valor seja 100 antes de voltar a 0)
-            
             timestamp = int(time.time() * 100)
 
             # --- Cria os Payloads (exatamente como o robot_client.py) ---
@@ -100,7 +97,6 @@ if __name__ == "__main__":
             client.publish(TOPIC_TELEMETRY_IMU, imu_payload)
             client.publish(TOPIC_TELEMETRY_BATTERY, battery_payload)
             client.publish(TOPIC_TELEMETRY_ENCODERS, encoders_payload)
-            
             logger.info(f"Publicado: Batt: {battery_mv}mV, Yaw (gyro_z): {angle}, Enc: {encoder_count}")
             
             # Atualiza 20 vezes por segundo (50ms)
