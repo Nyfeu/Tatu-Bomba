@@ -5,6 +5,10 @@ Este diretório contém o software necessário para operar o ambiente do operado
 - **Broker MQTT (Mosquitto) 📨:** Servidor central de mensagens, executado de forma isolada em um container Docker para maior estabilidade.
 - **Dashboard (PyQt) 🖥️:** Aplicação gráfica local para controle e visualização de telemetria.
 
+Além disso, foi desenvolvida uma aplicação de visão computacional (usando **SIFT** - *Features Detection*) com OpenCV - rodando no ambiente do operador. Abordando o conceito de **edge offloading**, onde o processamento pesado é delegado à máquina com maior poder de processamento ao invés de computar o algoritmo na borda (**edge computing**):
+
+- **Vision (SIFT) 👓:** Aplicação de algoritmo de visão computacional (SIFT - *Scale-Invariant Feature Transform*) para detecção de imagem de referência - no caso, simulando uma "bomba" (do jogo Mario Bros da Nintendo). O algoritmo SIFT é robusto para identificação do template mesmo em ocultação parcial e mudanças de iluminação, orientação e escala.
+
 ## Arquitetura e Automação ⚙️
 
 Cada componente é gerenciado por seu próprio script PowerShell, promovendo o fluxo de trabalho:
