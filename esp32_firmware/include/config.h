@@ -33,7 +33,7 @@ const int freq = 5000;                           // Frequência do PWM em Hz
 const int pwmChannelA = 0, pwmChannelB = 1;      // Canais PWM para os motores A e B
 const int resolution = 8;                        // Resolução do PWM em bits (8 bits = 0-255)
 const int MAX_PWM_DUTY_CYCLE = 121;              // Máximo ciclo de trabalho para os motores (ajustado para 121)
-const int DECCEL_DELAY = 10;                     // Delay em ms para a rampa de desaceleração
+const int DECCEL_DELAY = 20;                     // Delay em ms para a rampa de desaceleração
 
 // --- CONSTANTES DO FILTRO COMPLEMENTAR ---
 const float ALPHA = 0.98;                        // Fator do filtro complementar
