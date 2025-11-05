@@ -15,6 +15,10 @@
 | Durval Consorti Soranz de Barros Santos | 22.01097-0 |
 | Leonardo Roberto Amadio | 22.01300-8 |
 
+## Vídeo de Apresentação
+
+[https://www.youtube.com/watch?v=4js4HJ5Gtuk](https://www.youtube.com/watch?v=4js4HJ5Gtuk)
+
 ## Apresentação do Projeto
 
 Este repositório contém todo o software embarcado para o projeto **Tatu-Bomba**, um **Robô de Reconhecimento Tático** (inspirado no *TTR - Throwable Tactical Robot* da *Recon Robotics*). O objetivo é desenvolver uma plataforma de vigilância móvel capaz de ser controlada remotamente, transmitindo vídeo em tempo real.
